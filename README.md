@@ -1,9 +1,13 @@
 # PRM - Programação de Robôs Móveis
 
-**Disciplina SSC0712**  
-Oferecida para os cursos de Engenharia de Computação e áreas afins na **USP São Carlos**
+# 🤖 Trabalho 1 - Sistema de Navegação e Controle da Missão com ROS 2
 
-Este repositório contém o material da disciplina *Programação de Robôs Móveis*, focada no desenvolvimento de soluções em robótica móvel utilizando **ROS 2 Humble** e o simulador **Gazebo Fortress**.
+**Disciplina:** SSC0712 - Programação de Robôs Móveis  
+**Professor:** Dr. Matheus Machado dos Santos  
+**Grupo:** 5
+**Membros do grupo:** - Luis Enrique Asuncion Velasquez
+                      - Ari Manuel Gamboa Aguilar
+                      - Sandro Fabrizio Cárdenas Vilca
 
 ## 📦 Tecnologias utilizadas
 
@@ -11,7 +15,7 @@ Este repositório contém o material da disciplina *Programação de Robôs Móv
 - Gazebo Fortress
 - Python
 - RViz / Gazebo GUI
-- [teleop_twist_keyboard](https://github.com/ros2/teleop_twist_keyboard)
+- OpenCV
 
 ---
 
@@ -23,7 +27,7 @@ Acesse a pasta `src` do seu workspace ROS 2:
 
 ```bash
 cd ~/ros2_ws/src/
-git clone https://github.com/matheusbg8/prm.git
+git clone https://github.com/luisasuncion/prm.git
 ````
 
 ### 2. Instalar dependências
@@ -56,40 +60,21 @@ source install/local_setup.bash
 
 ## 🧪 Executando a simulação
 
-### 1. Iniciar o mundo no Gazebo
-
 ```bash
-ros2 launch prm inicia_simulacao.launch.py
+ros2 launch prm missao_completa.launch.py
 ```
 
-### 2. Carregar o robô no ambiente
+## Sensores Simulados
 
-Em um **novo terminal** (não se esqueça de `source install/local_setup.bash`):
+| Sensor     | Tópico         | Tipo de Mensagem         |
+| ---------- | -------------- | ------------------------ |
+| LIDAR      | `/scan`        | `sensor_msgs/LaserScan`  |
+| IMU        | `/imu`         | `sensor_msgs/Imu`        |
+| Odometria  | `/odom`        | `nav_msgs/Odometry`      |
+| Câmera RGB | `/robot_cam`   | `sensor_msgs/Image`      |
+| CameraInfo | `/camera_info` | `sensor_msgs/CameraInfo` |
 
-```bash
-ros2 launch prm carrega_robo.launch.py
-```
 
-### 3. Controle automático (demonstração)
 
-Em outro terminal:
 
-```bash
-ros2 run prm controle_robo
-```
 
-### 4. **Controle manual (alternativa ao passo 3)**
-
-Você pode controlar o robô usando o teclado, como alternativa ao controle automático:
-
-```bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
-```
-
-#### Instalar `teleop_twist_keyboard` (caso não esteja disponível)
-
-```bash
-sudo apt install ros-humble-teleop-twist-keyboard
-```
-
-> **Importante**: execute **o passo 3 *ou* o passo 4**, dependendo se deseja usar o controle automático ou manual.
