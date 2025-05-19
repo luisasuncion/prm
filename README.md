@@ -3,7 +3,7 @@
 # 🤖 Trabalho 1 - Sistema de Navegação e Controle da Missão com ROS 2
 
 **Disciplina:** SSC0712 - Programação de Robôs Móveis  
-**Professor:** Dr. Matheus Machado dos Santos  
+**Professor:** Dr. Matheus Machado dos Santos
 **Grupo:** 5
 **Membros do grupo:** 
 - Luis Enrique Asuncion Velasquez
@@ -73,8 +73,6 @@ ros2 launch prm missao_completa.launch.py
 | IMU        | `/imu`         | `sensor_msgs/Imu`        |
 | Odometria  | `/odom`        | `nav_msgs/Odometry`      |
 | Câmera RGB | `/robot_cam`   | `sensor_msgs/Image`      |
-| CameraInfo | `/camera_info` | `sensor_msgs/CameraInfo` |
-
 
 
 
