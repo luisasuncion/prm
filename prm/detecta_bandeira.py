@@ -39,7 +39,7 @@ class DetectorBandeira(Node):
             self.get_logger().error(f"Erro ao converter imagem: {e}")
             return
 
-        # PROCESSAMENTO DE VISÃO - Exemplo com cor vermelha
+        # PROCESSAMENTO DE VISÃO
         hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
 
         # Faixa de cor vermelha no HSV
@@ -56,7 +56,7 @@ class DetectorBandeira(Node):
         contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         # Dentro do if contours:
-        if contours and cv2.contourArea(max(contours, key=cv2.contourArea)) > 500:
+        if contours and cv2.contourArea(max(contours, key=cv2.contourArea)) > 430:
             c = max(contours, key=cv2.contourArea)
             M = cv2.moments(c)
             if M["m00"] > 0:
