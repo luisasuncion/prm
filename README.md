@@ -24,11 +24,11 @@ A arquitetura do sistema é baseada em uma máquina de estados implementada com 
 
 ## 🧩 Máquina de Estados
 
-- EXPLORANDO: movimento aleatório, evita obstáculos.
-- BANDEIRA_DETECTADA: bandeira identificada, calcula posição relativa.
-- NAVIGANDO_PARA_BANDEIRA: desloca-se até a bandeira desviando de obstáculos.
-- POSICIONANDO_PARA_COLETA: ajusta posição e orientação.
-- MISSÃO_COMPLETA: parada após o alinhamento correto.
+- **EXPLORANDO**: movimento aleatório, evita obstáculos.
+- **BANDEIRA_DETECTADA**: bandeira identificada, calcula posição relativa.
+- **NAVIGANDO_PARA_BANDEIRA**: desloca-se até a bandeira desviando de obstáculos.
+- **POSICIONANDO_PARA_COLETA**: ajusta posição e orientação.
+- **MISSÃO_COMPLETA**: parada após o alinhamento correto.
 
 > Toda a lógica de estados está implementada no script controle_robo.py utilizando sensor_msgs e geometry_msgs.
 
@@ -58,7 +58,7 @@ Dentro da pasta `src` do seu workspace ROS 2:
 cd ~/ros2_ws/src/
 git clone https://github.com/luisasuncion/prm.git
 ````
-ros2 launch prm inicia_simulacao.launch.py
+
 ### 2. Instalar dependências
 
 Instale as dependências do pacote com:
