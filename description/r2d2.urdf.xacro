@@ -1,0 +1,441 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="r2d2">
+
+  <!-- Parametrização -->
+  <xacro:property name="cylinder_radius" value="0.1"/>
+  <xacro:property name="cylinder_length" value="0.3"/>
+  <xacro:property name="box_size" value="0.33 0.05 0.03"/>
+  <xacro:property name="sphere_radius" value="0.1"/>
+  <xacro:property name="wheel_radius" value="0.06"/>
+  <xacro:property name="wheel_length" value="0.04"/>
+  
+  <!-- Materiais -->
+  <material name="blue">
+    <color rgba="0 0 1 1"/>
+  </material>
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+
+  <material name="black">
+    <color rgba="0 0 0 1"/>
+  </material>
+
+  <!-- Link base -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <cylinder radius="${cylinder_radius}" length="${cylinder_length}"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.5 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <cylinder radius="${cylinder_radius}" length="${cylinder_length}"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.5 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="10"/>
+      <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
+    </inertial>
+  </link>
+
+  <!-- Função para criar pernas -->
+  <xacro:macro name="leg_link" params="name pos">
+    <link name="${name}">
+      <visual>
+        <geometry>
+          <box size="${box_size}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="0 1.58 0"/>
+        <material name="blue"/>
+      </visual>
+      <collision>
+        <geometry>
+          <box size="${box_size}"/>
+        </geometry>
+          <origin xyz="0 0 0" rpy="0 1.58 0"/>
+      </collision>
+      <inertial>
+        <mass value="10"/>
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+      </inertial>
+    </link>
+    <joint name="base_to_${name}" type="fixed">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <origin xyz="${pos}" />
+    </joint>
+  </xacro:macro>
+  
+
+  <xacro:leg_link name="right_leg" pos="0.113 -0.05 -0.04"/>
+  <xacro:leg_link name="left_leg" pos="-0.113 -0.05 -0.04"/>
+
+
+  <!-- Cabeça -->
+  <link name="head">
+    <visual>
+      <geometry>
+        <sphere radius="${sphere_radius}"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.01" rpy="0 0 0"/>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry>
+        <sphere radius="${sphere_radius}"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.01" rpy="0 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="2"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+  <joint name="base_to_head" type="fixed">
+    <parent link="base_link"/>
+    <child link="head"/>
+    <axis xyz="0 0 1"/>
+    <origin xyz="0.0 -0.0765 0.14"/>
+  </joint>
+
+  <!-- Base inferior -->
+  <link name="base_bottom">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.06"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.5 0 0"/>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.1 0.1 0.06"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.5 0 0"/>
+    </collision>
+    <inertial>
+      <mass value="10"/>
+      <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+    </inertial>
+  </link>
+  <joint name="base_to_base_bottom" type="fixed">
+    <parent link="base_link"/>
+    <child link="base_bottom"/>
+    <origin xyz="0 0.07 -0.16"/>
+  </joint>
+
+  <!-- Função para rodas -->
+  <xacro:macro name="wheel" params="name parent_link pos type">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 ${pi/2} 0"/>
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_length}"/>
+        </geometry>
+      </collision>
+      
+      <inertial>
+        <mass value="2.5"/>
+        <inertia ixx="0.01" ixy="0.0" ixz="0.0" iyy="0.01" iyz="0.0" izz="0.01"/>
+      </inertial>
+    </link>
+    <joint name="${parent_link}_to_${name}" type="${type}">
+      <parent link="${parent_link}"/>
+      <child link="${name}"/>
+      <origin xyz="${pos}"/>
+      <axis xyz="-1 0 0"/>
+      <dynamics damping="0.2"/>
+    </joint>
+
+  </xacro:macro>
+
+  <xacro:wheel name="wheel_front_left" parent_link="base_link" pos="-0.073 0.1 -0.2" type = "continuous"/>
+  <xacro:wheel name="wheel_front_right" parent_link="base_link" pos="0.073 0.1 -0.2" type = "continuous"/>
+  <xacro:wheel name="wheel_back_right" parent_link="base_link" pos="0.15 -0.05 -0.2" type = "continuous"/>
+  <xacro:wheel name="wheel_back_left" parent_link="base_link" pos="-0.15 -0.05 -0.2" type = "continuous"/>
+<!-- End Robot -->
+
+<!-- IMU -->
+<link name="imu_link">
+  <visual>
+    <geometry>
+      <box size="0.05 0.05 0.05"/>
+    </geometry>
+  </visual>
+  <collision>
+    <geometry>
+      <box size="0.1 0.1 0.1"/>
+    </geometry>
+  </collision>
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.1"/>
+    <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.01" />
+  </inertial>
+</link>
+
+<gazebo reference="imu_link">
+    <sensor name="imu_sensor" type="imu">
+      <ignition_frame_id>imu_link</ignition_frame_id>
+      <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu">
+      </plugin>
+
+      <topic>imu</topic>
+      <always_on>true</always_on>
+      <update_rate>50</update_rate>
+      <visualize>true</visualize>
+      <imu>
+        <angular_velocity>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+              <bias_mean>0.0000075</bias_mean>
+              <bias_stddev>0.0000008</bias_stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+              <bias_mean>0.0000075</bias_mean>
+              <bias_stddev>0.0000008</bias_stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>2e-4</stddev>
+              <bias_mean>0.0000075</bias_mean>
+              <bias_stddev>0.0000008</bias_stddev>
+            </noise>
+          </z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+              <bias_mean>0.1</bias_mean>
+              <bias_stddev>0.001</bias_stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+              <bias_mean>0.1</bias_mean>
+              <bias_stddev>0.001</bias_stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <mean>0.0</mean>
+              <stddev>1.7e-2</stddev>
+              <bias_mean>0.1</bias_mean>
+              <bias_stddev>0.001</bias_stddev>
+            </noise>
+          </z>
+        </linear_acceleration>
+      </imu>
+    </sensor>
+  </gazebo>
+
+<joint name="imu_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="imu_link"/>
+  <origin xyz="0 0 0.01" rpy="0 0 0"/>
+</joint>
+
+
+<!-- Sistema de controle ROS 2 -->
+
+<ros2_control name="IgnitionSystem" type="system">
+
+  <!-- Seção de hardware do sistema, ponte entre o Gazebo (Ignition) e o ros2_control -->
+  <hardware>
+    <plugin>ign_ros2_control/IgnitionSystem</plugin>
+  </hardware>
+
+  <!-- Definição do primeiro atuador, correspondente à roda dereita traseira -->
+  <joint name="base_link_to_wheel_back_right">
+    
+    <!-- Interface de comando de velocidade angular (por exemplo, rad/s) para essa junta -->
+    <command_interface name="velocity">
+      <!-- Valor mínimo permitido para o comando de velocidade (limite inferior) -->
+      <param name="min">-1</param>
+      <!-- Valor máximo permitido para o comando de velocidade (limite superior) -->
+      <param name="max">1</param>
+    </command_interface>
+
+    <!-- Interface de estado que fornece a posição atual da junta (por exemplo, em radianos) -->
+    <state_interface name="position"/>
+    <!-- Interface de estado que fornece a velocidade atual da junta (por exemplo, em rad/s) -->
+    <state_interface name="velocity"/>
+  </joint>
+
+  <joint name="base_link_to_wheel_back_left">
+    
+    <command_interface name="velocity">
+      <param name="min">-1</param>
+      <param name="max">1</param>
+    </command_interface>
+
+    <state_interface name="position"/>
+    <state_interface name="velocity"/>
+  </joint>
+
+  <joint name="base_link_to_wheel_front_left">
+    
+    <command_interface name="velocity">
+      <param name="min">-1</param>
+      <param name="max">1</param>
+    </command_interface>
+
+    <state_interface name="position"/>
+    <state_interface name="velocity"/>
+  </joint>
+
+  <joint name="base_link_to_wheel_front_right">
+    
+    <command_interface name="velocity">
+      <param name="min">-1</param>
+      <param name="max">1</param>
+    </command_interface>
+
+    <state_interface name="position"/>
+    <state_interface name="velocity"/>
+  </joint>
+
+  
+</ros2_control>
+
+  <gazebo>
+    <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+      <parameters>$(find prm)/config/diff_drive_controller_velocity.yaml</parameters>
+    </plugin>
+  </gazebo>
+
+<!-- Sensores -->
+
+<!-- Sensor Lidar -->
+<link name="lidar_link">
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.125"/>
+    <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+  </inertial>
+
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+        <cylinder radius="0.05" length="0.03"/>
+    </geometry>
+  </collision>
+    
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>  
+    <geometry>
+      <cylinder radius="0.05" length="0.03"/>
+    </geometry>
+    <material name="blue"/>
+  </visual>
+</link>
+
+<joint name="lidar_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="lidar_link"/>
+  <origin xyz="0 0.1 0" rpy="0 0 1.57"/>
+</joint>
+
+<gazebo reference="lidar_link">
+  <sensor name="lidar" type="gpu_lidar">
+    <ignition_frame_id>lidar_link</ignition_frame_id>
+    <topic>scan</topic>
+    <always_on>true</always_on>
+    <visualize>true</visualize>
+    <update_rate>10</update_rate>
+    <ray>
+      <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1.000000</resolution>
+            <min_angle>0.000000</min_angle>
+            <max_angle>6.280000</max_angle>
+          </horizontal>
+      </scan>
+      <range>
+          <min>0.120000</min>
+          <max>3.5</max>
+          <resolution>0.015000</resolution>
+      </range>
+      <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.01</stddev>
+      </noise>
+    </ray>
+  </sensor>
+</gazebo>
+
+<!-- Camera -->
+<link name="camera_link">
+  <visual>
+    <geometry>
+      <box size="0.02 0.18 0.02"/>
+    </geometry>
+    <material name="blue"/>
+  </visual>
+  <collision>
+    <geometry>
+      <box size="0.02 0.18 0.02"/>
+    </geometry>
+  </collision>
+  <inertial>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <mass value="0.035"/>
+    <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+  </inertial>
+</link>
+
+<joint name="camera_joint" type="fixed">
+  <parent link="base_link"/>
+  <child link="camera_link"/>
+  <origin xyz="0 0.05 0.12" rpy="0 0 1.57"/>
+</joint>
+
+<gazebo reference="camera_link">
+  <sensor name="robot_cam" type="camera">
+   <camera>
+      <horizontal_fov>1.047</horizontal_fov>
+      <image>
+        <width>320</width>
+        <height>240</height>
+      </image>
+      <clip>
+        <near>0.1</near>
+        <far>100</far>
+      </clip>
+    </camera>
+    <always_on>1</always_on>
+    <update_rate>30</update_rate>
+    <visualize>true</visualize>
+    <topic>robot_cam</topic>
+    <enable_metrics>true</enable_metrics>
+  </sensor>
+</gazebo>
+
+</robot>

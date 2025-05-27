@@ -20,7 +20,7 @@ def generate_launch_description():
     urdf_path = PathJoinSubstitution([
         FindPackageShare("prm"),         # Diretório do pacote `prm`
         "description",                   # Subpasta onde está o modelo
-        "robot.urdf.xacro"               # Nome do arquivo Xacro
+        "r2d2.urdf.xacro"               # Nome do arquivo Xacro
     ])
 
     # ------------------------------------------------------

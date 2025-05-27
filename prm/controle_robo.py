@@ -7,14 +7,14 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 from tf_transformations import euler_from_quaternion
-from math import sqrt
+from math import sqrt, pi
 
 DISTANCIA_OBSTACULO = 0.38
-JANELA_LIDAR = 10
+JANELA_LIDAR = 22
 POS_CENTRAL = 0.7
-DISTANCIA_COLETA = 0.3
+DISTANCIA_COLETA = 0.25
 TOLERANCIA_YAW = 0.1
-DISTANCIA_OBJETIVO = 0.1
+DISTANCIA_OBJETIVO = 0.2
 
 class ControleRobo(Node):
     def __init__(self):
@@ -95,6 +95,13 @@ class ControleRobo(Node):
 
         return dist
 
+    def normalize_angle(self, angle):
+        while angle > pi:
+            angle -= 2 * pi
+        while angle < -pi:
+            angle += 2 * pi
+        return angle
+
     def move_robot(self):
         twist = Twist()
 
@@ -141,17 +148,23 @@ class ControleRobo(Node):
         elif self.estado == 'POSICIONANDO_PARA_COLETA':
             self.get_logger().info("🤖 Estado: POSICIONANDO_PARA_COLETA")
             dist = sqrt((self.x - self.x_objetivo) ** 2 + (self.y - self.y_objetivo) ** 2)
-            erro_yaw = self.yaw - self.yaw_objetivo
+            erro_yaw = self.normalize_angle(self.yaw - self.yaw_objetivo)
 
             if dist > DISTANCIA_OBJETIVO:
-                twist.linear.x = 0.05
+                twist.linear.x = 0.15
             elif abs(erro_yaw) > TOLERANCIA_YAW:
                 twist.linear.x = 0.0
-                twist.angular.z = -erro_yaw
+                twist.angular.z = -erro_yaw * 0.3
             else:
-                twist.linear.x = 0.0
+                twist.linear.x = 0.15
                 twist.angular.z = 0.0
+                self.estado = 'MISSÃO_COMPLETA'
                 self.get_logger().info("🚩 Frente à bandeira. Pronto para coleta.")
+       
+        elif self.estado == 'MISSÃO_COMPLETA':
+            self.get_logger().info("✅ Missão completa. Parado.")
+            twist.linear.x = 0.0
+            twist.angular.z = 0.0
 
         self.cmd_vel_pub.publish(twist)
 

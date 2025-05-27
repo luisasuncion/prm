@@ -48,14 +48,13 @@ setup(
     data_files=data_files,
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Matheus Machado',
-    maintainer_email='matheus.m.santos@icmc.usp.br',
+    maintainer='Luis Asuncion',
+    maintainer_email='lasuncionv@usp.br',
     description='Pacote da disciplina SSC0712: Programação de Robôs Móveis',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'tartaruga = prm.controle_tartaruga:main',
             'controle_robo = prm.controle_robo:main',
             'detecta_bandeira = prm.detecta_bandeira:main',
         ],
