@@ -83,17 +83,19 @@ class ControleRobo(Node):
             return float('inf')
 
         idx = int(self.bandeira_pos * 359)
-        dist = self.lidar_data[idx]
 
-        if dist == float('inf'):
-            vizinhos = [
-                self.lidar_data[(idx + i) % 360]
-                for i in range(-JANELA_LIDAR, JANELA_LIDAR + 1)
-                if self.lidar_data[(idx + i) % 360] != float('inf')
-            ]
-            return min(vizinhos) if vizinhos else float('inf')
+        # Filtrar solo valores válidos y positivos
+        vizinhos = [
+            d for i in range(-20, 21)
+            if (0 <= (idx + i) % 360 < len(self.lidar_data))
+            and not (d := self.lidar_data[(idx + i) % 360]) in [float('inf'), float('-inf')]
+            and d > 0.0
+        ]
 
-        return dist
+        if not vizinhos:
+            return float('inf')
+
+        return min(vizinhos)
 
     def normalize_angle(self, angle):
         while angle > pi:
