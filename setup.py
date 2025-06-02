@@ -57,6 +57,8 @@ setup(
         'console_scripts': [
             'controle_robo = prm.controle_robo:main',
             'detecta_bandeira = prm.detecta_bandeira:main',
+            'robo_mapper = prm.robo_mapper:main',
+            'ground_truth_odometry = prm.ground_truth_odometry:main'
         ],
     },
 )

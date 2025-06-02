@@ -14,7 +14,7 @@ JANELA_LIDAR = 22
 POS_CENTRAL = 0.7
 DISTANCIA_COLETA = 0.25
 TOLERANCIA_YAW = 0.1
-DISTANCIA_OBJETIVO = 0.2
+DISTANCIA_OBJETIVO = 0.15
 
 class ControleRobo(Node):
     def __init__(self):
@@ -24,7 +24,6 @@ class ControleRobo(Node):
 
         self.create_subscription(LaserScan, '/scan', self.scan_callback, 10)
         self.create_subscription(Imu, '/imu', self.imu_callback, 10)
-        self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.create_subscription(String, '/bandeira_detectada', self.bandeira_callback, 10)
 
         self.timer = self.create_timer(0.1, self.move_robot)
@@ -49,10 +48,7 @@ class ControleRobo(Node):
         _, _, self.yaw = euler_from_quaternion([q.x, q.y, q.z, q.w])
 
     def odom_callback(self, msg):
-        self.x = msg.pose.pose.position.x
-        self.y = msg.pose.pose.position.y
-        q = msg.pose.pose.orientation
-        _, _, self.yaw = euler_from_quaternion([q.x, q.y, q.z, q.w])
+        pass
 
     def bandeira_callback(self, msg):
         if msg.data.startswith("detected:"):
@@ -96,6 +92,7 @@ class ControleRobo(Node):
             return float('inf')
 
         return min(vizinhos)
+
 
     def normalize_angle(self, angle):
         while angle > pi:

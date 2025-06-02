@@ -35,6 +35,12 @@ def generate_launch_description():
     # ------------------------------------------------------
     # Publica as transformações dos links do robô com base no URDF.
     # Requer o parâmetro 'robot_description' com o conteúdo do modelo.
+    diff_drive_params = PathJoinSubstitution([
+        FindPackageShare("prm"),
+        "config",
+        "diff_drive_controller_velocity.yaml"
+    ])
+    
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -65,17 +71,12 @@ def generate_launch_description():
 
     # Inicialização do sistema de controle das rodas/motores do robo
     # o controle das rodas depende do estado das juntas
-    start_diff_controller = ExecuteProcess(
-        name="activate_diff_drive_base_controller",
-        cmd=[
-            "ros2",
-            "control",
-            "load_controller",
-            "--set-state",
-            "active",
-            "diff_drive_base_controller",
-        ],
-        shell=False,
+    start_diff_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        name="spawner_diff_drive_base_controller",
+        arguments=["diff_drive_base_controller"],
+        parameters=[diff_drive_params],
         output="screen",
     )
 
@@ -158,7 +159,25 @@ def generate_launch_description():
             "/camera_info@sensor_msgs/msg/CameraInfo@ignition.msgs.CameraInfo",
             # Necessário para controladores como diff_drive_controller
             "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
+            # Ground Truth de Posicao
+            "/model/prm_robot/pose@geometry_msgs/msg/Pose[ignition.msgs.Pose",
         ],
+        output="screen",
+    )
+
+#  Nodo que publica odometria ground truth
+    odom_gt= Node(
+        package="prm",
+        executable="ground_truth_odometry",
+        name="odom_gt",
+        output="screen",
+    )
+
+#  Nodo que publica o mapa
+    robo_mapper= Node(
+        package="prm",
+        executable="robo_mapper",
+        name="robo_mapper",
         output="screen",
     )
 
@@ -182,7 +201,9 @@ def generate_launch_description():
                 on_exit=[start_diff_controller], # Carrega o sistema de controle das rodas/motores
             )
         ),
+        odom_gt,
+        robo_mapper,
         rviz_node,
-        relay_odom, # Nodos de redirecionamento de mensagens
-        relay_cmd_vel
+        relay_cmd_vel,
+        relay_odom
     ])
