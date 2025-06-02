@@ -20,7 +20,7 @@ Visualization Manager:
   Class: ""
   Displays:
     - Alpha: 0.5
-      Cell Size: 1
+      Cell Size: 0.25
       Class: rviz_default_plugins/Grid
       Color: 160; 160; 164
       Enabled: true
@@ -34,8 +34,8 @@ Visualization Manager:
         Y: 0
         Z: -0.24
       Plane: XY
-      Plane Cell Count: 10
-      Reference Frame: <Fixed Frame>
+      Plane Cell Count: 50
+      Reference Frame: odom
       Value: true
     - Alpha: 0.6000000238418579
       Class: rviz_default_plugins/RobotModel
@@ -136,6 +136,10 @@ Visualization Manager:
           Value: true
         camera_frame:
           Value: true
+        map:
+          Value: true
+        odom:
+          Value: true
       Marker Scale: 0.30000001192092896
       Name: TF
       Show Arrows: true
@@ -144,22 +148,15 @@ Visualization Manager:
       Tree:
         base_link:
           camera_link:
-            camera_frame:
-              {}
-          wheel_back_right:
-            {}
-          wheel_back_left:
-            {}
-          wheel_front_left:
-            {}
-          wheel_front_right:
-            {}
-          imu_link:
-            {}
-          lidar_link:
-            {}
-        odom:
-          {}
+            camera_frame: {}
+          wheel_back_right: {}
+          wheel_back_left: {}
+          wheel_front_left: {}
+          wheel_front_right: {}
+          imu_link: {}
+          lidar_link: {}
+        map: {}
+        odom: {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -223,6 +220,27 @@ Visualization Manager:
         Value: /scan
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /grid_map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /grid_map_updates
+      Use Timestamp: False
       Value: true
     - Alpha: 1
       Class: rviz_default_plugins/Polygon
@@ -299,7 +317,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.299370050430298
+      Distance: 4.912381172180176
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -314,10 +332,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5247975587844849
+      Pitch: 0.9747974872589111
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.14040470123291
+      Yaw: 3.15041184425354
     Saved: ~
 Window Geometry:
   Displays:
