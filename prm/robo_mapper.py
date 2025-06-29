@@ -42,7 +42,7 @@ class RoboMapper(Node):
 
         # Atributos de configuração do mapa
         # Parâmetros do mapa
-        self.grid_size = 50  # 50x50 células
+        self.grid_size = 80  # 80x80 células
         self.resolution = 0.25  # 25 cm por célula
 
         # Matriz do mapa (-1 = desconhecido)

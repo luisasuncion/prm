@@ -38,7 +38,7 @@ def generate_launch_description():
     diff_drive_params = PathJoinSubstitution([
         FindPackageShare("prm"),
         "config",
-        "diff_drive_controller_velocity.yaml"
+        "controller_config.yaml"
     ])
     
     robot_state_publisher_node = Node(
@@ -76,6 +76,15 @@ def generate_launch_description():
         executable="spawner",
         name="spawner_diff_drive_base_controller",
         arguments=["diff_drive_base_controller"],
+        parameters=[diff_drive_params],
+        output="screen",
+    )
+
+    start_gripper_controller = Node(
+        package="controller_manager",
+        executable="spawner",
+        name="spawner_gripper_controller",
+        arguments=["gripper_controller"],
         parameters=[diff_drive_params],
         output="screen",
     )
@@ -137,8 +146,8 @@ def generate_launch_description():
         arguments=[
             "-name", "prm_robot",          # Nome da entidade no simulador
             "-topic", "robot_description", # Descrição do robô a ser utilizada
-            "-z", "1.0",                   # Altura inicial do robô
-            "-x", "-2.0",                  # Posição no eixo X
+            "-z", "0.3",                   # Altura inicial do robô
+            "-x", "-8.0",                  # Posição no eixo X
             "--ros-args", "--log-level", "warn"
         ],
         parameters=[{"use_sim_time": True}],  # Usa o tempo simulado
@@ -155,8 +164,9 @@ def generate_launch_description():
         arguments=[
             "/scan@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan",
             "/imu@sensor_msgs/msg/Imu[ignition.msgs.IMU",
-            "/robot_cam@sensor_msgs/msg/Image@ignition.msgs.Image",
-            "/camera_info@sensor_msgs/msg/CameraInfo@ignition.msgs.CameraInfo",
+            "/robot_cam/labels_map@sensor_msgs/msg/Image@ignition.msgs.Image",
+            "/robot_cam/colored_map@sensor_msgs/msg/Image@ignition.msgs.Image",
+            "/robot_cam/camera_info@sensor_msgs/msg/CameraInfo@ignition.msgs.CameraInfo",  
             # Necessário para controladores como diff_drive_controller
             "/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock",
             # Ground Truth de Posicao
@@ -166,10 +176,11 @@ def generate_launch_description():
     )
 
 #  Nodo que publica odometria ground truth
-    odom_gt= Node(
+    odom= Node(
         package="prm",
         executable="ground_truth_odometry",
-        name="odom_gt",
+        name="odom",
+        parameters=[{"use_sim_time": True}],
         output="screen",
     )
 
@@ -178,6 +189,7 @@ def generate_launch_description():
         package="prm",
         executable="robo_mapper",
         name="robo_mapper",
+        parameters=[{"use_sim_time": True}],
         output="screen",
     )
 
@@ -201,9 +213,15 @@ def generate_launch_description():
                 on_exit=[start_diff_controller], # Carrega o sistema de controle das rodas/motores
             )
         ),
-        odom_gt,
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=start_diff_controller,
+                on_exit=[start_gripper_controller],
+            )
+        ), 
+        odom,
         robo_mapper,
         rviz_node,
-        relay_cmd_vel,
-        relay_odom
+        relay_cmd_vel
+        #relay_odom
     ])

@@ -19,7 +19,7 @@ class DetectorBandeira(Node):
 
         self.subscription = self.create_subscription(
             Image,
-            '/robot_cam',
+            '/robot_cam/colored_map',
             self.camera_callback,
             10
         )
@@ -30,7 +30,7 @@ class DetectorBandeira(Node):
             10
         )
 
-        self.get_logger().info("Detector de bandeira iniciado.")
+        self.get_logger().info("📷 Detector de bandeira com segmentação iniciado.")
 
     def camera_callback(self, msg):
         try:
@@ -39,37 +39,32 @@ class DetectorBandeira(Node):
             self.get_logger().error(f"Erro ao converter imagem: {e}")
             return
 
-        # PROCESSAMENTO DE VISÃO
-        hsv = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
+        h, w, _ = cv_image.shape
+        pixel = cv_image[h // 2, w // 2]
+        b, g, r = int(pixel[0]), int(pixel[1]), int(pixel[2])
+        # self.get_logger().info(f"🎨 Pixel central: R={r} G={g} B={b}")
 
-        # Faixa de cor vermelha no HSV
-        lower_red1 = np.array([0, 120, 70])
-        upper_red1 = np.array([10, 255, 255])
-        lower_red2 = np.array([170, 120, 70])
-        upper_red2 = np.array([180, 255, 255])
+        mask = cv2.inRange(cv_image, (227, 73, 0), (227, 73, 0))
+        #cv2.imshow("Máscara", mask)
+        #cv2.imshow("Visão", cv_image)
+        #cv2.waitKey(1)
 
-        mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
-        mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
-        mask = mask1 | mask2
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #self.get_logger().info(f"🔍 Contornos encontrados: {len(contours)}")
 
-        # Encontrar contornos
-        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-        # Dentro do if contours:
-        if contours and cv2.contourArea(max(contours, key=cv2.contourArea)) > 430:
+        if contours:
             c = max(contours, key=cv2.contourArea)
-            M = cv2.moments(c)
-            if M["m00"] > 0:
-                cx = int(M["m10"] / M["m00"])
-                w = cv_image.shape[1]
-                pos_norm = cx / w  # Normalizado entre 0 y 1
-                self.pub_detectado.publish(String(data=f"detected:{pos_norm:.2f}"))
+            area = cv2.contourArea(c)
+            self.get_logger().info(f"📏 Área do maior contorno: {area:.2f}")
+            if area > 200:
+                M = cv2.moments(c)
+                if M["m00"] > 0:
+                    cx = int(M["m10"] / M["m00"])
+                    pos_norm = cx / w
+                    self.pub_detectado.publish(String(data=f"detected:{pos_norm:.2f}:{area:.0f}"))
+                    #self.get_logger().info(f"📍 Bandeira detectada! Posição normalizada: {pos_norm:.2f}")
 
 
-        # DEBUG:
-        # cv2.imshow("Visão", cv_image)
-        # cv2.imshow("Máscara", mask)
-        # cv2.waitKey(1)
 
 
 def main(args=None):
@@ -78,8 +73,6 @@ def main(args=None):
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
-    # cv2.destroyAllWindows()
-
 
 if __name__ == '__main__':
     main()
