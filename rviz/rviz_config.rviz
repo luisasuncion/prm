@@ -4,11 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Global Options1
-        - /Status1
         - /RobotModel1/Description Topic1
-        - /TF1
         - /LaserScan1/Topic1
+        - /Image1
       Splitter Ratio: 0.5
     Tree Height: 255
   - Class: rviz_common/Views
@@ -34,7 +32,7 @@ Visualization Manager:
         Y: 0
         Z: -0.24
       Plane: XY
-      Plane Cell Count: 50
+      Plane Cell Count: 80
       Reference Frame: odom
       Value: true
     - Alpha: 0.6000000238418579
@@ -60,12 +58,12 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        camera_link:
+        camera_frame:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        camera_frame:
+        camera_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -120,6 +118,10 @@ Visualization Manager:
         All Enabled: true
         base_link:
           Value: true
+        camera_link:
+          Value: true
+        camera_frame:
+          Value: true
         wheel_back_right:
           Value: true
         wheel_back_left:
@@ -131,10 +133,6 @@ Visualization Manager:
         lidar_link:
           Value: true
         imu_link:
-          Value: true
-        camera_link:
-          Value: true
-        camera_frame:
           Value: true
         map:
           Value: true
@@ -287,7 +285,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /robot_cam
+        Value: /robot_cam/colored_map
       Value: true
   Enabled: true
   Global Options:
