@@ -268,17 +268,17 @@ class ControleRobo(Node):
                     else:
                         if self.obstaculo_a_frente:
                             self.estado_retornar = 'DESVIANDO'
-                            self.contador_avanco = 75
+                            self.contador_avanco = 60
                             self.get_logger().info("⚠️ Obstáculo no retorno, iniciando desvio...")
                         else:
-                            twist.linear.x = 0.5
+                            twist.linear.x = 0.45
                             twist.angular.z = 0.0
                             self.get_logger().info("⬆️ Avançando para a base.")
 
                 elif self.estado_retornar == 'DESVIANDO':
                     twist.linear.x = 0.0
                     twist.angular.z = self.evitar_obstaculo()
-                    self.contador_avanco = 70
+                    self.contador_avanco = 60
                     self.estado_retornar = 'AVANCANDO'
 
                 elif self.estado_retornar == 'AVANCANDO':

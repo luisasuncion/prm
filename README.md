@@ -101,7 +101,7 @@ ros2 launch prm missao_completa.launch.py
 
 #### 1. Iniciar o mundo no Gazebo
 ```bash
-ros2 launch prm inicia_simulacao.launch.py
+ros2 launch prm inicia_simulacao.launch.py world:=empty_arena.sdf
 ```
 #### 2. Carregar o robô no ambiente
 Em um novo terminal (não se esqueça de `source install/local_setup.bash`):
@@ -111,7 +111,7 @@ ros2 launch prm carrega_robo.launch.py
 #### 3. Controle automático
 Em outro terminal:
 ```bash
-ros2 run prm controle_robo
+ros2 launch prm executa_missao.launch.py
 ```
 
 ## Sensores Simulados
