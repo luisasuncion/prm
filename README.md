@@ -16,14 +16,15 @@ esenvolvimento de um sistema autônomo de navegação e coleta de objetos para u
 
 O robô é capaz de:
 
-✅ Explorar o ambiente evitando obstáculos
-✅ Detectar uma bandeira via visão computacional (mensagens String simuladas)
-✅ Navegar até a bandeira ajustando sua posição
-✅ Realizar a coleta simulada da bandeira, acionando uma garra virtual
-✅ Retornar automaticamente à base inicial
+✅ Explorar o ambiente evitando obstáculos  
+✅ Detectar uma bandeira via visão computacional (mensagens String simuladas)  
+✅ Navegar até a bandeira ajustando sua posição  
+✅ Realizar a coleta simulada da bandeira, acionando uma garra virtual  
+✅ Retornar automaticamente à base inicial  
 ✅ Entregar a bandeira e finalizar a missão
 
-O controle é estruturado por meio de máquina de estados gerenciada pelo script controle_robo.py, usando mensagens ROS 2 padrão (sensor_msgs, geometry_msgs, std_msgs).
+O controle é estruturado por meio de uma **máquina de estados** gerenciada pelo script `controle_robo.py`, usando mensagens padrão do ROS 2 (`sensor_msgs`, `geometry_msgs`, `std_msgs`).
+
 
 ## 🧩 Máquina de Estados
 
@@ -121,9 +122,6 @@ source install/local_setup.bash
 ## 🧪 Como executar a simulação
 
 #### 1. Iniciar o mundo no Gazebo
-```bash
-ros2 launch prm inicia_simulacao.launch.py world:=empty_arena.sdf
-```
 
 ```bash
 ros2 launch prm inicia_simulacao.launch.py world:=arena_cilindros.sdf
@@ -151,9 +149,9 @@ ros2 launch prm executa_missao.launch.py
 
 ## 📈 Fluxo da Missão
 
-1️⃣ Explora o ambiente seguindo paredes e evitando obstáculos
-2️⃣ Detecta a bandeira via /bandeira_detectada
-3️⃣ Navega até a bandeira ajustando orientação e distância
-4️⃣ Aciona a garra virtual para coleta e aguarda a animação
-5️⃣ Retorna à base evitando obstáculos
-6️⃣ Entrega a bandeira e finaliza a missão
+1️⃣ Explora o ambiente seguindo paredes e evitando obstáculos  
+2️⃣ Detecta a bandeira via /bandeira_detectada  
+3️⃣ Navega até a bandeira ajustando orientação e distância  
+4️⃣ Aciona a garra virtual para coleta e aguarda a animação  
+5️⃣ Retorna à base evitando obstáculos  
+6️⃣ Entrega a bandeira e finaliza a missão  
