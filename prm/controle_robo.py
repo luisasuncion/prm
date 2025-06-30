@@ -118,9 +118,9 @@ class ControleRobo(Node):
         media_d = sum(setor_direita) / len(setor_direita) if setor_direita else 0
 
         if media_d > media_e:
-            return -0.45  # gira para direita
+            return -0.5  # gira para direita
         else:
-            return +0.45  # gira para esquerda
+            return +0.5  # gira para esquerda
 
 
 
@@ -268,7 +268,7 @@ class ControleRobo(Node):
                     else:
                         if self.obstaculo_a_frente:
                             self.estado_retornar = 'DESVIANDO'
-                            self.contador_avanco = 60
+                            self.contador_avanco = 30
                             self.get_logger().info("⚠️ Obstáculo no retorno, iniciando desvio...")
                         else:
                             twist.linear.x = 0.45
@@ -278,7 +278,7 @@ class ControleRobo(Node):
                 elif self.estado_retornar == 'DESVIANDO':
                     twist.linear.x = 0.0
                     twist.angular.z = self.evitar_obstaculo()
-                    self.contador_avanco = 60
+                    self.contador_avanco = 30
                     self.estado_retornar = 'AVANCANDO'
 
                 elif self.estado_retornar == 'AVANCANDO':
