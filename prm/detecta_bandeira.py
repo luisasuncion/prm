@@ -55,7 +55,7 @@ class DetectorBandeira(Node):
         if contours:
             c = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(c)
-            self.get_logger().info(f"📏 Área do maior contorno: {area:.2f}")
+            #self.get_logger().info(f"📏 Área do maior contorno: {area:.2f}")
             if area > 200:
                 M = cv2.moments(c)
                 if M["m00"] > 0:

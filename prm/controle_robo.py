@@ -43,7 +43,7 @@ class ControleRobo(Node):
         self.y = 0.0
 
         self.x_base = -8.0
-        self.y_base = 0.0
+        self.y_base = -0.5
 
         self.estado_retornar = 'NORMAL'
         self.contador_avanco = 0
@@ -58,8 +58,19 @@ class ControleRobo(Node):
     def scan_callback(self, msg):
         self.lidar_data = msg.ranges
         frente = msg.ranges[0:30] + msg.ranges[330:360]
+
+        #esquerda = msg.ranges[60:120]
+        #direita = msg.ranges[240:300]
+
+        #self.get_logger().info(
+        #    f"🚦 LIDAR: frente min={min(frente):.2f}, "
+        #     f"esquerda min={min(esquerda):.2f}, "
+        #    f"direita min={min(direita):.2f}"
+        #)
+
         frente_valido = [d for d in frente if d != float('inf')]
         self.obstaculo_a_frente = min(frente_valido) < DISTANCIA_OBSTACULO if frente_valido else False
+
 
     def imu_callback(self, msg):
         q = msg.orientation
@@ -92,7 +103,26 @@ class ControleRobo(Node):
                 self.get_logger().warn("Formato inválido em bandeira_detectada.")
 
     def evitar_obstaculo(self):
-        return -0.45
+        if not self.lidar_data or len(self.lidar_data) < 360:
+            return -0.45  # fallback
+
+        # faixa de 45° à esquerda e 45° à direita
+        setor_esquerda = [
+            d for d in self.lidar_data[45:90] if d != float('inf') and d > 0.0
+        ]
+        setor_direita = [
+            d for d in self.lidar_data[270:315] if d != float('inf') and d > 0.0
+        ]
+
+        media_e = sum(setor_esquerda) / len(setor_esquerda) if setor_esquerda else 0
+        media_d = sum(setor_direita) / len(setor_direita) if setor_direita else 0
+
+        if media_d > media_e:
+            return -0.45  # gira para direita
+        else:
+            return +0.45  # gira para esquerda
+
+
 
     def get_distancia_bandeira(self):
         if self.area_bandeira > 200:
@@ -122,13 +152,51 @@ class ControleRobo(Node):
 
         if self.estado == 'EXPLORANDO':
             self.get_logger().info("🔍 Estado: EXPLORANDO")
-            if self.obstaculo_a_frente:
-                twist.linear.x = 0.0
-                twist.angular.z = self.evitar_obstaculo()
+
+            if self.lidar_data and len(self.lidar_data) >= 360:
+                # faixa da esquerda (60 a 120 graus)
+                esquerda = [
+                    d for d in self.lidar_data[60:120]
+                    if not d in [float('inf'), float('-inf')] and d > 0.0
+                ]
+
+                # faixa da frente (para evitar colisões)
+                frente = [
+                    d for d in self.lidar_data[0:30] + self.lidar_data[330:360]
+                    if not d in [float('inf'), float('-inf')] and d > 0.0
+                ]
+
+                dist_esquerda = min(esquerda) if esquerda else float('inf')
+                dist_frente = min(frente) if frente else float('inf')
+
+                #self.get_logger().info(f"🚦 LIDAR: esquerda min={dist_esquerda:.2f}, frente min={dist_frente:.2f}")
+
+                distancia_desejada = 0.3  # distância alvo da parede
+                erro_dist = distancia_desejada - dist_esquerda
+
+                k_p = 1.0  # ganho proporcional
+                ajuste = - k_p * erro_dist   # sinal invertido para seguir parede
+                ajuste = max(min(ajuste, +0.8), -0.8)  # limitar ajuste para não ficar muito brusco
+
+                if dist_frente < DISTANCIA_OBSTACULO:
+                    twist.linear.x = 0.0
+                    twist.angular.z = -0.5  # prioriza virar para direita
+                    #self.get_logger().info("⚠️ Obstáculo à frente - desviando à direita.")
+                elif dist_esquerda < 1.5:
+                    # parede localizada, segue ajustando
+                    twist.linear.x = 0.5
+                    twist.angular.z = ajuste
+                    #self.get_logger().info(f"🚗 Seguindo parede esquerda | erro={erro_dist:.2f} ajuste={ajuste:.2f}")
+                else:
+                    # sem parede detectada, segue reto
+                    twist.linear.x = 0.25
+                    twist.angular.z = 0.5
+                    #self.get_logger().info("🔄 Sem parede à esquerda, avançando reto.")
             else:
+                # dados lidar indisponíveis
                 twist.linear.x = 0.5
                 twist.angular.z = 0.0
-                self.direcao_evasao = None
+                #self.get_logger().warn("⚠️ Dados do LIDAR indisponíveis - avançando devagar.")
 
         elif self.estado == 'BANDEIRA_DETECTADA':
             self.get_logger().info("🎯 Estado: BANDEIRA_DETECTADA")
@@ -151,7 +219,7 @@ class ControleRobo(Node):
 
             self.get_logger().info(f"Bandeira_pos: {self.bandeira_pos:.2f} | Erro: {erro:.2f} | Distância: {distancia:.2f} m")
 
-            if distancia < DISTANCIA_COLETA and not self.obstaculo_a_frente:
+            if distancia < DISTANCIA_COLETA:
                 self.estado = 'POSICIONANDO_PARA_COLETA'
                 msg = Float64MultiArray()
                 msg.data = [2.0, 0.6, -0.6]
@@ -200,7 +268,7 @@ class ControleRobo(Node):
                     else:
                         if self.obstaculo_a_frente:
                             self.estado_retornar = 'DESVIANDO'
-                            self.contador_avanco = 30
+                            self.contador_avanco = 75
                             self.get_logger().info("⚠️ Obstáculo no retorno, iniciando desvio...")
                         else:
                             twist.linear.x = 0.5
@@ -210,7 +278,7 @@ class ControleRobo(Node):
                 elif self.estado_retornar == 'DESVIANDO':
                     twist.linear.x = 0.0
                     twist.angular.z = self.evitar_obstaculo()
-                    self.contador_avanco = 30
+                    self.contador_avanco = 70
                     self.estado_retornar = 'AVANCANDO'
 
                 elif self.estado_retornar == 'AVANCANDO':
@@ -220,7 +288,7 @@ class ControleRobo(Node):
                         self.estado_retornar = 'DESVIANDO'
                         self.get_logger().info("⚠️ Obstáculo detectado novamente durante avanço, retomando desvio...")
                     elif self.contador_avanco > 0:
-                        twist.linear.x = 0.4
+                        twist.linear.x = 0.5
                         twist.angular.z = 0.0
                         self.contador_avanco -= 1
                         self.get_logger().info("↔️ Avançando após desvio...")
