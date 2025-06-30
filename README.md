@@ -97,6 +97,11 @@ source install/local_setup.bash
 ```bash
 ros2 launch prm inicia_simulacao.launch.py world:=empty_arena.sdf
 ```
+
+```bash
+ros2 launch prm inicia_simulacao.launch.py world:=arena_cilindros.sdf
+```
+
 #### 2. Carregar o robô no ambiente
 Em um novo terminal (não se esqueça de `source install/local_setup.bash`):
 ```bash
