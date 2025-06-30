@@ -92,12 +92,6 @@ source install/local_setup.bash
 ---
 
 ## 🧪 Como executar a simulação
-### ▶️ Se quiser executar tudo de uma vez:
-
-```bash
-ros2 launch prm missao_completa.launch.py
-```
-### ▶️ Se quiser executar passo a passo:
 
 #### 1. Iniciar o mundo no Gazebo
 ```bash
