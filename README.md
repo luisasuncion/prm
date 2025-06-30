@@ -108,11 +108,7 @@ Em um novo terminal (não se esqueça de `source install/local_setup.bash`):
 ros2 launch prm carrega_robo.launch.py
 ```
 #### 3. Controle automatico
-Em um novo terminal:
-```bash
-ros2 run prm detecta_bandeira
-```
-y em outro:
+
 ```bash
 ros2 launch prm executa_missao.launch.py
 ```
